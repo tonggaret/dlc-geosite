@@ -1,80 +1,176 @@
 name: Build GeoSite dat and db files
 on:
   workflow_dispatch:
+  push:
   schedule:
     - cron: "5 8 * * 0"
 jobs:
-  build:
-    name: Build
+  getFilter:
+    name: Get Filter
     runs-on: ubuntu-latest
-
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v3
+      - name: Set variables
+        run: |
+          echo "NOW=$(date +'%F-%H%M')" >> $GITHUB_ENV
+          echo "AdGuardSDNSFilter=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/AdGuardSDNSFilter/AdGuardSDNSFilter_Domain.yaml" >> $GITHUB_ENV
+          echo "AdAway=https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/AdAway-Default-Blocklist.txt" >> $GITHUB_ENV
+          echo "ABPindo=https://raw.githubusercontent.com/ABPindo/indonesianadblockrules/master/subscriptions/domain.txt" >> $GITHUB_ENV
+          echo "OneHostsLite=https://raw.githubusercontent.com/badmojr/1Hosts/master/Lite/domains.txt" >> $GITHUB_ENV
+      - name: Get all domains
+        run: |
+          curl -sSL $AdGuardSDNSFilter > temp-unsorted
+          #
+          sed -i '1d' temp-unsorted
+          sed -i "s/[-'+]//g" temp-unsorted
+          sed -i 's/   .//g' temp-unsorted
+          sed -i 's/payload://g' temp-unsorted
+          #
+          curl -sSL $AdAway >> temp-unsorted
+          curl -sSL $ABPindo >> temp-unsorted
+          curl -sSL $OneHostsLite >> temp-unsorted
+      - name: Remove redundant domain
+        id: domain
+        run: |
+          chmod +x ./script/findRedundantDomain.py
+          ./script/findRedundantDomain.py ./temp-unsorted ./temp-unsorted-deleted
+          [[ ! -f "temp-unsorted-deleted" ]] && touch temp-unsorted-deleted
+          sort ./temp-unsorted-deleted > ./temp-sorted-deleted
+          diff ./temp-sorted-deleted ./temp-unsorted | awk '/^>/{print $2}' > ./category-ads-all
+      - name: Send Tele
+        run: |
+          chmod +x ./script/*.sh
+          COUNT=$(wc -l < ./category-ads-all)
+          MSG="GeoSite ${NOW} with domain: ${COUNT}"
+          ./script/tgSendMsg.sh "${MSG}"
+          ./script/tgSendDoc.sh ./category-ads-all
+        env:
+          TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: category-ads-all
+          path: category-ads-all
+  buildDat:
+    name: Build GeoSite Dat for Clash
+    runs-on: ubuntu-latest
+    needs:
+      - getFilter
     steps:
       - name: Checkout codebase
         uses: actions/checkout@v3
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version: stable
-      - name: Set variables
+          go-version-file: clash/go.mod
+      - name: Make data dir
         run: |
-          echo "AdGuardSDNSFilter=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/AdGuardSDNSFilter/AdGuardSDNSFilter_Domain.yaml" >> $GITHUB_ENV
-          echo "AdAway=https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/AdAway-Default-Blocklist.txt" >> $GITHUB_ENV
-          echo "ABPindo=https://raw.githubusercontent.com/ABPindo/indonesianadblockrules/master/subscriptions/domain.txt" >> $GITHUB_ENV
-          echo "OneHostsLite=https://raw.githubusercontent.com/badmojr/1Hosts/master/Lite/domains.txt" >> $GITHUB_ENV
-      - name: Create dir and empty file cn
-        run: |
-          mkdir -p result
           mkdir -p data
-          touch data/cn
-      - name: Get all domains
-        run: |
-          cd data || exit 1
-          curl -sSL $AdGuardSDNSFilter > temp-unsorted
-          curl -sSL $AdAway >> temp-unsorted
-          curl -sSL $ABPindo >> temp-unsorted
-          curl -sSL $OneHostsLite >> temp-unsorted
-          #
-          sed -i '1d' temp-unsorted
-          sed -i "s/[-'+]//g" temp-unsorted
-          sed -i 's/   .//g' temp-unsorted
-          sed -i 's/payload://g' temp-unsorted
-      - name: Remove redundant domain
-        run: |
-          cd data || exit 1
-          chmod +x ../script/findRedundantDomain.py
-          ../script/findRedundantDomain.py ./temp-unsorted ./temp-unsorted-deleted
-          [[ ! -f "temp-unsorted-deleted" ]] && touch temp-unsorted-deleted
-          sort ./temp-unsorted-deleted > ./temp-sorted-deleted
-          diff ./temp-sorted-deleted ./temp-unsorted | awk '/^>/{print $2}' > ./category-ads-all
-          rm temp-*
-      - name: Build GeoSite.dat for clash
+          touch cn
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: category-ads-all
+          path: ./data/
+      - name: Build GeoSite.dat
         run: |
           cd clash || exit 1
-          go run -v . --datapath=../data --outputname=GeoSite.dat --outputdir=../result --exportlists=category-ads-all,cn
-      - name: Build GeoSite.db for sing-box
+          go run -v . --datapath=../data --outputname=GeoSite.dat --outputdir=../ --exportlists=category-ads-all,cn
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: GeoSite.dat
+          path: GeoSite.dat
+      - name: SendTo Telegram
+        run: |
+          chmod +x ./script/tgSendDoc.sh
+          ./script/tgSendDoc.sh GeoSite.dat
+        env:
+          TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+  buildDb:
+    name: Build GeoSite Db for Sing-box
+    runs-on: ubuntu-latest
+    needs:
+      - buildDat
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v3
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: sing-box/go.mod
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: GeoSite.dat
+          path: ./sing-box/
+      - name: Build GeoSite.db
         env:
           NO_SKIP: true
         run: |
           cd sing-box || exit 1
-          go run -v . ../result/GeoSite.dat ../result/GeoSite.db
+          go run -v . GeoSite.dat GeoSite.db
+          mv GeoSite.db ../
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          path: |
-            ./result/GeoSite.dat
-            ./result/GeoSite.db
+          name: GeoSite.db
+          path: GeoSite.db
       - name: SendTo Telegram
         run: |
+          chmod +x ./script/tgSendDoc.sh
+          ./script/tgSendDoc.sh GeoSite.db
+        env:
+          TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+  release:
+    permissions: write-all
+    name: Release
+    runs-on: ubuntu-latest
+    needs:
+      - getFilter
+      - buildDat
+      - buildDb
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Make dir "artifact"
+        run: mkdir -p artifact
+      - name: Download all artifact
+        uses: actions/download-artifact@v3
+        with:
+          path: ./artifact/
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: ./artifact/
+      - name: Push to "subscribe" branch
+        run: |
+          branch="subscribe"
+          mkdir -p $branch
+          cd $branch
+          GITPUSH=(git push https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} "$branch")
+          git init
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add origin "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+          git checkout -b $branch
+          _check_branch=$(git ls-remote --heads origin ${branch})
           #
-          CHAT_ID=${{ secrets.TELEGRAM_TO }}
-          TOKEN=${{ secrets.TELEGRAM_TOKEN }}
-          function sendTele(){
-            local FILE=$1
-            curl -X POST \
-             -H "content-type: multipart/form-data" \
-             -F document=@"${FILE}" \
-             -F chat_id=$CHAT_ID \
-             https://api.telegram.org/bot$TOKEN/sendDocument
-          }
-          sendTele ./result/GeoSite.dat
-          sendTele ./result/GeoSite.db
+          if [[ -z ${_check_branch} ]]; then
+              echo "Branch $branch do not exist" > /dev/null 2>&1
+          else
+              echo "Branch exist, need sync" > /dev/null 2>&1
+              git fetch origin $branch
+              git pull origin $branch
+              rm -rf ./*
+          fi
+          NOW=$(date +'%F-%H%M')
+          echo $NOW > timestamp
+          cp -r ../artifact/* ./
+          git add .
+          git commit -asm "Updated on $NOW" && "${GITPUSH[@]}"
+
+
