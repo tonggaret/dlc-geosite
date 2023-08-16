@@ -45,6 +45,7 @@ jobs:
           MSG="GeoSite ${NOW} with domain: ${COUNT}"
           ./script/tgSendMsg.sh "${MSG}"
           ./script/tgSendDoc.sh ./category-ads-all
+          sed -i '/^#/d;/^$/d' ./category-ads-all
         env:
           TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
