@@ -6,6 +6,8 @@ on:
     - cron: "5 8 * * 0"
 jobs:
   getFilter:
+    # Skip if head commit contains 'skip ci'
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
     name: Get Filter
     runs-on: ubuntu-latest
     steps:
@@ -173,5 +175,3 @@ jobs:
           cp -r ../artifact/* ./
           git add .
           git commit -asm "Updated on $NOW" && "${GITPUSH[@]}"
-
-
