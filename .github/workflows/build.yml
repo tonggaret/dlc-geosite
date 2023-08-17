@@ -23,15 +23,15 @@ jobs:
       - name: Get all domains
         run: |
           curl -sSL $AdGuardSDNSFilter > temp-unsorted
+          curl -sSL $AdAway >> temp-unsorted
+          curl -sSL $ABPindo >> temp-unsorted
+          curl -sSL $OneHostsLite >> temp-unsorted
           #
           sed -i '1d' temp-unsorted
           sed -i "s/[-'+]//g" temp-unsorted
           sed -i 's/   .//g' temp-unsorted
           sed -i 's/payload://g' temp-unsorted
-          #
-          curl -sSL $AdAway >> temp-unsorted
-          curl -sSL $ABPindo >> temp-unsorted
-          curl -sSL $OneHostsLite >> temp-unsorted
+          sed -i '/^#/d;/^$/d' temp-unsorted
       - name: Remove redundant domain
         id: domain
         run: |
@@ -47,7 +47,6 @@ jobs:
           MSG="GeoSite ${NOW} with domain: ${COUNT}"
           ./script/tgSendMsg.sh "${MSG}"
           ./script/tgSendDoc.sh ./category-ads-all
-          sed -i '/^#/d;/^$/d' ./category-ads-all
         env:
           TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
@@ -171,7 +170,8 @@ jobs:
               rm -rf ./*
           fi
           NOW=$(date +'%F-%H%M')
-          echo $NOW > timestamp
+          echo -e "# Subscribe dlc\n\n" > README.md
+          echo $NOW >> README.md
           cp -r ../artifact/* ./
           git add .
           git commit -asm "Updated on $NOW" && "${GITPUSH[@]}"
