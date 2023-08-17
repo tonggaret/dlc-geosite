@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
   schedule:
-    - cron: "5 8 * * 0"
+    - cron: "5 8 * * 1,4" # biweekly
 jobs:
   getFilter:
     # Skip if head commit contains 'skip ci'
