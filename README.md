@@ -12,6 +12,8 @@
    > `https://raw.githubusercontent.com/ABPindo/indonesianadblockrules/master/subscriptions/domain.txt`
  - **1Hosts-Lite**
    > `https://raw.githubusercontent.com/badmojr/1Hosts/master/Lite/domains.txt`
+ - **HaGeZiLight**
+   > `https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/light.txt`
 
 
 ## Clash

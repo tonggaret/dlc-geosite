@@ -20,12 +20,14 @@ jobs:
           echo "AdAway=https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/AdAway-Default-Blocklist.txt" >> $GITHUB_ENV
           echo "ABPindo=https://raw.githubusercontent.com/ABPindo/indonesianadblockrules/master/subscriptions/domain.txt" >> $GITHUB_ENV
           echo "OneHostsLite=https://raw.githubusercontent.com/badmojr/1Hosts/master/Lite/domains.txt" >> $GITHUB_ENV
+          echo "HaGeZiLight=https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/light.txt" >> $GITHUB_ENV
       - name: Get all domains
         run: |
           curl -sSL $AdGuardSDNSFilter > temp-unsorted
           curl -sSL $AdAway >> temp-unsorted
           curl -sSL $ABPindo >> temp-unsorted
           curl -sSL $OneHostsLite >> temp-unsorted
+          curl -sSL $HaGeZiLight >> temp-unsorted
           #
           sed -i '1d' temp-unsorted
           sed -i "s/[-'+]//g" temp-unsorted
