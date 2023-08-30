@@ -44,9 +44,7 @@ jobs:
         run: |
           chmod +x ./script/*.sh
           COUNT=$(wc -l < ./category-ads-all)
-          MSG="GeoSite ${NOW} with domain: ${COUNT}"
-          ./script/tgSendMsg.sh "${MSG}"
-          ./script/tgSendDoc.sh ./category-ads-all
+          ./script/tgSendDoc.sh ./category-ads-all "${COUNT}"
         env:
           TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
@@ -88,7 +86,8 @@ jobs:
       - name: SendTo Telegram
         run: |
           chmod +x ./script/tgSendDoc.sh
-          ./script/tgSendDoc.sh GeoSite.dat
+          SHA=$(cat GeoSite.dat 2>/dev/null | sha256sum | cut -d ' ' -f1)
+          ./script/tgSendDoc.sh GeoSite.dat "${SHA}"
         env:
           TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
@@ -123,8 +122,8 @@ jobs:
           path: GeoSite.db
       - name: SendTo Telegram
         run: |
-          chmod +x ./script/tgSendDoc.sh
-          ./script/tgSendDoc.sh GeoSite.db
+          SHA=$(cat GeoSite.db 2>/dev/null | sha256sum | cut -d ' ' -f1)
+          ./script/tgSendDoc.sh GeoSite.db "${SHA}"
         env:
           TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
