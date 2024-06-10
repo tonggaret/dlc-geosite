@@ -4,6 +4,9 @@ on:
   push:
   schedule:
     - cron: "5 8 * * 1,4" # biweekly
+env:
+  TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
+  TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
 jobs:
   getFilter:
     # Skip if head commit contains 'skip ci'
@@ -45,9 +48,6 @@ jobs:
           chmod +x ./script/*.sh
           COUNT=$(wc -l < ./category-ads-all)
           ./script/tgSendDoc.sh ./category-ads-all "${COUNT}"
-        env:
-          TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
@@ -88,9 +88,6 @@ jobs:
           chmod +x ./script/tgSendDoc.sh
           SHA=$(cat GeoSite.dat 2>/dev/null | sha256sum | cut -d ' ' -f1)
           ./script/tgSendDoc.sh GeoSite.dat "${SHA}"
-        env:
-          TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
   buildDb:
     name: Build GeoSite Db for Sing-box
     runs-on: ubuntu-latest
@@ -124,9 +121,6 @@ jobs:
         run: |
           SHA=$(cat GeoSite.db 2>/dev/null | sha256sum | cut -d ' ' -f1)
           ./script/tgSendDoc.sh GeoSite.db "${SHA}"
-        env:
-          TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
   release:
     permissions: write-all
     name: Release
