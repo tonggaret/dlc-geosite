@@ -43,6 +43,17 @@ jobs:
           [[ ! -f "temp-unsorted-deleted" ]] && touch temp-unsorted-deleted
           sort ./temp-unsorted-deleted > ./temp-sorted-deleted
           diff ./temp-sorted-deleted ./temp-unsorted | awk '/^>/{print $2}' > ./category-ads-all
+      - name: Check diff from prev
+        run: |
+          prev=https://raw.githubusercontent.com/tonggaret/dlc-geosite/subscribe/category-ads-all/category-ads-all
+          curl -sSL $prev > ./prev-category-ads-all
+          if cmp -s ./category-ads-all ./prev-category-ads-all; then
+          echo "No different, early exit here!"
+          exit 1
+          else
+          echo "Files are different, good to go"
+          fi
+          
       - name: Send Tele
         run: |
           chmod +x ./script/*.sh
