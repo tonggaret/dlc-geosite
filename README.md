@@ -61,3 +61,26 @@ rules:
     ]
   }
 ```
+
+### Rule Set
+
+```json
+  "route": {
+    "rule_set": [
+      {
+        "type": "remote",
+        "tag": "category-ads-all",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/tonggaret/dlc-geosite/subscribe/category-ads-all.srs/category-ads-all.srs",
+        "download_detour": "direct",
+        "update_interval": "12h0m0s"
+      }
+    ],
+    "rules": [
+      {
+        "rule_set": "category-ads-all",
+        "outbound": "block"
+      }
+    ]
+  }
+```
