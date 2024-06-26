@@ -140,14 +140,7 @@ jobs:
       - name: Checkout codebase
         uses: actions/checkout@v4
       - name: Download sing-box binary
-        run: |
-          SING_BOX_VERSION=$(curl -Ls "https://api.github.com/repos/SagerNet/sing-box/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
-          DOWNLOAD_URL="https://github.com/SagerNet/sing-box/releases/download/${SING_BOX_VERSION}/sing-box-${SING_BOX_VERSION#v}-linux-amd64.tar.gz"
-          wget -N --no-check-certificate -O sing-box.tar.gz ${DOWNLOAD_URL}
-          mkdir -p ./bin
-          tar -tf sing-box.tar.gz
-          tar -C ./bin -vxaf sing-box.tar.gz sing-box-${SING_BOX_VERSION#v}-linux-amd64/sing-box
-          chmod +x ./bin/sing-box
+        run: "SING_BOX_VERSION=$(curl -Ls \"https://api.github.com/repos/SagerNet/sing-box/releases/latest\" | grep '\"tag_name\":' | sed -E 's/.*\"([^\"]+)\".*/\\1/')\nDOWNLOAD_URL=\"https://github.com/SagerNet/sing-box/releases/download/${SING_BOX_VERSION}/sing-box-${SING_BOX_VERSION#v}-linux-amd64.tar.gz\"\nwget -N --no-check-certificate -O sing-box.tar.gz ${DOWNLOAD_URL}\nmkdir -p ./bin\ntar -tf sing-box.tar.gz\ntar -C ./bin -vxaf sing-box.tar.gz --strip-components=1 sing-box-${SING_BOX_VERSION#v}-linux-amd64/sing-box \nchmod +x ./bin/sing-box\n"
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
