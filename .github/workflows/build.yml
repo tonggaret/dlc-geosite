@@ -146,7 +146,7 @@ jobs:
           wget -N --no-check-certificate -O sing-box.tar.gz ${DOWNLOAD_URL}
           mkdir -p ./bin
           tar -tf sing-box.tar.gz
-          tar -C ./bin -vxaf sing-box.tar.gz sing-box
+          tar -C ./bin -vxaf sing-box.tar.gz sing-box-${SING_BOX_VERSION#v}-linux-amd64/sing-box
           chmod +x ./bin/sing-box
       - name: Download artifact
         uses: actions/download-artifact@v4
