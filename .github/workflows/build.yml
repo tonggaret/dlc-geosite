@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set variables
         run: |
           echo "NOW=$(date +'%F-%H%M')" >> $GITHUB_ENV
@@ -60,7 +60,7 @@ jobs:
           COUNT=$(wc -l < ./category-ads-all)
           ./script/tgSendDoc.sh ./category-ads-all "${COUNT}"
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: category-ads-all
           path: category-ads-all
@@ -71,7 +71,7 @@ jobs:
       - getFilter
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
@@ -81,7 +81,7 @@ jobs:
           mkdir -p data
           touch cn
       - name: Download artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: category-ads-all
           path: ./data/
@@ -90,7 +90,7 @@ jobs:
           cd clash || exit 1
           go run -v . --datapath=../data --outputname=GeoSite.dat --outputdir=../ --exportlists=category-ads-all,cn
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: GeoSite.dat
           path: GeoSite.dat
@@ -106,13 +106,13 @@ jobs:
       - buildDat
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
           go-version-file: sing-box/go.mod
       - name: Download artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: GeoSite.dat
           path: ./sing-box/
@@ -124,7 +124,7 @@ jobs:
           go run -v . GeoSite.dat GeoSite.db
           mv GeoSite.db ../
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: GeoSite.db
           path: GeoSite.db
@@ -142,11 +142,11 @@ jobs:
       - buildDb
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Make dir "artifact"
         run: mkdir -p artifact
       - name: Download all artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: ./artifact/
       - name: Display structure of downloaded files
