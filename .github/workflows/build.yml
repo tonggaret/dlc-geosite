@@ -142,7 +142,7 @@ jobs:
       - name: Download sing-box binary
         run: |
           SING_BOX_VERSION=$(curl -Ls "https://api.github.com/repos/SagerNet/sing-box/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
-          DOWNLOAD_URL="https://github.com/SagerNet/sing-box/releases/download/${SING_BOX_VERSION}/sing-box-${SING_BOX_VERSION}-linux-amd64.tar.gz"
+          DOWNLOAD_URL="https://github.com/SagerNet/sing-box/releases/download/${SING_BOX_VERSION}/sing-box-${SING_BOX_VERSION#v}-linux-amd64.tar.gz"
           wget -N --no-check-certificate -O sing-box.tar.gz ${DOWNLOAD_URL}
           tar -xaf sing-box.tar.gz
           chmod +x sing-box
