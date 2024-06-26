@@ -53,7 +53,6 @@ jobs:
           else
           echo "Files are different, good to go"
           fi
-          
       - name: Send Tele
         run: |
           chmod +x ./script/*.sh
@@ -140,18 +139,13 @@ jobs:
     steps:
       - name: Checkout codebase
         uses: actions/checkout@v4
-      #- name: Download sing-box binary
-        #run: |
-          #SING_BOX_VERSION=$(curl -Ls "https://api.github.com/repos/SagerNet/sing-box/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
-          #DOWNLOAD_URL="https://github.com/SagerNet/sing-box/releases/download/${SING_BOX_VERSION}/sing-box-${SING_BOX_VERSION#v}-linux-amd64.tar.gz"
-          #wget -N --no-check-certificate -O sing-box.tar.gz ${DOWNLOAD_URL}
-          #mkdir -p ./bin
-          #tar -vxaf sing-box.tar.gz -C ./bin --one-top-level=./bin --strip-components=1
-          #chmod +x ./bin/sing-box
-      - name: Installing required tools
-        uses: daaku/gh-action-apt-install@v4
-        with:
-          packages: sing-box
+      - name: Download sing-box binary
+        run: |
+          SING_BOX_VERSION=$(curl -Ls "https://api.github.com/repos/SagerNet/sing-box/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+          DOWNLOAD_URL="https://github.com/SagerNet/sing-box/releases/download/${SING_BOX_VERSION}/sing-box-${SING_BOX_VERSION#v}-linux-amd64.tar.gz"
+          wget -N --no-check-certificate -O sing-box.tar.gz ${DOWNLOAD_URL}
+          tar -xaf sing-box.tar.gz
+          chmod +x sing-box
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
@@ -159,8 +153,8 @@ jobs:
           path: ./
       - name: Export & compile Rule-set
         run: |
-          sing-box geosite export -o ./category-ads-all.json -f ./GeoSite.db category-ads-all
-          sing-box rule-set compile -o ./category-ads-all.srs ./category-ads-all.json
+          ./sing-box geosite export -o ./category-ads-all.json -f ./GeoSite.db category-ads-all
+          ./sing-box rule-set compile -o ./category-ads-all.srs ./category-ads-all.json
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
