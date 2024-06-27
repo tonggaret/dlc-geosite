@@ -1,4 +1,4 @@
-name: Build GeoSite dat and db files
+name: Build
 on:
   workflow_dispatch:
   push:
@@ -117,7 +117,7 @@ jobs:
         with:
           name: GeoSite.dat
           path: ./sing-box/
-      - name: Build GeoSite.db
+      - name: Build GeoSite.db category-ads-all.srs
         env:
           NO_SKIP: true
         run: |
