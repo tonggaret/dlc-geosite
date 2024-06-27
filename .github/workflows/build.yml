@@ -90,18 +90,18 @@ jobs:
         run: |
           cd clash || exit 1
           go run -v . --datapath=../data --outputname=GeoSite.dat --outputdir=../ --exportlists=category-ads-all,cn
-      - name: Upload artifact
+      - name: Upload artifact GeoSite.dat
         uses: actions/upload-artifact@v4
         with:
           name: GeoSite.dat
           path: GeoSite.dat
-      - name: SendTo Telegram
+      - name: SendTo GeoSite.dat Telegram
         run: |
           chmod +x ./script/tgSendDoc.sh
           SHA=$(cat GeoSite.dat 2>/dev/null | sha256sum | cut -d ' ' -f1)
           ./script/tgSendDoc.sh GeoSite.dat "${SHA}"
   buildDb:
-    name: Build GeoSite Db for Sing-box
+    name: Build GeoSite Db and Rule-set for Sing-box
     runs-on: ubuntu-latest
     needs:
       - buildDat
@@ -122,42 +122,24 @@ jobs:
           NO_SKIP: true
         run: |
           cd sing-box || exit 1
-          go run -v . GeoSite.dat GeoSite.db
+          go run -v . GeoSite.dat GeoSite.db rules
           mv GeoSite.db ../
-      - name: Upload artifact
+          mv rules/geosite-category-ads-all.srs ../category-ads-all.srs
+      - name: Upload artifact GeoSite.db
         uses: actions/upload-artifact@v4
         with:
           name: GeoSite.db
           path: GeoSite.db
-      - name: SendTo Telegram
+      - name: SendTo GeoSite.db Telegram
         run: |
           SHA=$(cat GeoSite.db 2>/dev/null | sha256sum | cut -d ' ' -f1)
           ./script/tgSendDoc.sh GeoSite.db "${SHA}"
-  buildSrs:
-    name: Build Rule-set for Sing-box
-    runs-on: ubuntu-latest
-    needs:
-      - buildDb
-    steps:
-      - name: Checkout codebase
-        uses: actions/checkout@v4
-      - name: Download sing-box binary
-        run: "SING_BOX_VERSION=$(curl -Ls \"https://api.github.com/repos/SagerNet/sing-box/releases/latest\" | grep '\"tag_name\":' | sed -E 's/.*\"([^\"]+)\".*/\\1/')\nDOWNLOAD_URL=\"https://github.com/SagerNet/sing-box/releases/download/${SING_BOX_VERSION}/sing-box-${SING_BOX_VERSION#v}-linux-amd64.tar.gz\"\nwget -N --no-check-certificate -O sing-box.tar.gz ${DOWNLOAD_URL}\nmkdir -p ./bin\ntar -tf sing-box.tar.gz\ntar -C ./bin -vxaf sing-box.tar.gz --strip-components=1 sing-box-${SING_BOX_VERSION#v}-linux-amd64/sing-box \nchmod +x ./bin/sing-box\n"
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: GeoSite.db
-          path: ./
-      - name: Export & compile Rule-set
-        run: |
-          ./bin/sing-box geosite export -o ./category-ads-all.json -f ./GeoSite.db category-ads-all
-          ./bin/sing-box rule-set compile -o ./category-ads-all.srs ./category-ads-all.json
-      - name: Upload artifact
+      - name: Upload artifact category-ads-all.srs
         uses: actions/upload-artifact@v4
         with:
           name: category-ads-all.srs
           path: category-ads-all.srs
-      - name: SendTo Telegram
+      - name: SendTo category-ads-all.srs Telegram
         run: |
           SHA=$(cat category-ads-all.srs 2>/dev/null | sha256sum | cut -d ' ' -f1)
           ./script/tgSendDoc.sh category-ads-all.srs "${SHA}"
@@ -169,7 +151,6 @@ jobs:
       - getFilter
       - buildDat
       - buildDb
-      - buildSrs
     steps:
       - name: Checkout
         uses: actions/checkout@v4
