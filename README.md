@@ -14,6 +14,8 @@
    > `https://cdn.jsdelivr.net/gh/badmojr/1Hosts@master/Lite/domains.txt`
 - **UrlHaus-malware**
    > `https://malware-filter.gitlab.io/malware-filter/urlhaus-filter-domains-online.txt`
+- **D3ward-host**
+   > `https://cdn.jsdelivr.net/gh/d3ward/toolz@master/src/d3host.txt`
 
 ## Usage
 
