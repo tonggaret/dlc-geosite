@@ -19,10 +19,10 @@ jobs:
       - name: Set variables
         run: |
           echo "NOW=$(date +'%F-%H%M')" >> $GITHUB_ENV
-          echo "AdGuardSDNSFilter=https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/AdGuardSDNSFilter/AdGuardSDNSFilter_Domain.yaml" >> $GITHUB_ENV
-          echo "AdAway=https://cdn.jsdelivr.net/gh/deathbybandaid/piholeparser@master/Subscribable-Lists/ParsedBlacklists/AdAway-Default-Blocklist.txt" >> $GITHUB_ENV
-          echo "ABPindo=https://cdn.jsdelivr.net/gh/ABPindo/indonesianadblockrules@master/subscriptions/domain.txt" >> $GITHUB_ENV
-          echo "OneHostsLite=https://cdn.jsdelivr.net/gh/badmojr/1Hosts@master/Lite/domains.txt" >> $GITHUB_ENV
+          echo "AdGuardSDNSFilter=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/AdGuardSDNSFilter/AdGuardSDNSFilter_Domain.yaml" >> $GITHUB_ENV
+          echo "AdAway=https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/AdAway-Default-Blocklist.txt" >> $GITHUB_ENV
+          echo "ABPindo=https://raw.githubusercontent.com/ABPindo/indonesianadblockrules/master/subscriptions/domain.txt" >> $GITHUB_ENV
+          echo "OneHostsLite=https://raw.githubusercontent.com/badmojr/1Hosts/master/Lite/domains.txt" >> $GITHUB_ENV
           echo "UrlHaus=https://malware-filter.gitlab.io/malware-filter/urlhaus-filter-domains-online.txt" >> $GITHUB_ENV
           echo "D3ward=https://cdn.jsdelivr.net/gh/d3ward/toolz@master/src/d3host.txt" >> $GITHUB_ENV
       - name: Get all domains
