@@ -36,7 +36,7 @@ rule-providers:
     type: http
     url: https://raw.githubusercontent.com/tonggaret/dlc-geosite/subscribe/category-ads-all/category-ads-all
     behavior: domain
-    path: ./providers/rules/category-ads-all
+    path: ./category-ads-all
     interval: 86400
     format: text
 
