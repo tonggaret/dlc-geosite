@@ -17,10 +17,11 @@
  - **HaGeZi's Pro mini**
    > `https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/pro.mini-onlydomains.txt`
 
+## Usage
 
-## Clash
+### Clash
 
-### GeoSite.dat
+#### GeoSite.dat
 
 ```yaml
 geox-url:
@@ -30,7 +31,7 @@ rules:
   - GEOSITE,category-ads-all,REJECT
 ```
 
-### Rule provider
+#### Rule provider
 
 ```yaml
 rule-providers:
@@ -46,9 +47,9 @@ rules:
   - RULE-SET,category-ads-all,REJECT
 ```
 
-## Sing-box
+### Sing-box
 
-### GeoSite.db
+#### GeoSite.db
 
 ```json
   "route": {
@@ -66,7 +67,7 @@ rules:
   }
 ```
 
-### Rule Set
+#### Rule Set
 
 ```json
   "route": {
@@ -88,3 +89,9 @@ rules:
     ]
   }
 ```
+
+## Credits
+
+ - [CHIZI-0618/sing-geosite](https://github.com/CHIZI-0618/sing-geosite)
+
+ - [malikshi/v2ray-rules-dat](https://github.com/malikshi/v2ray-rules-dat)
