@@ -47,6 +47,22 @@ rules:
   - RULE-SET,category-ads-all,REJECT
 ```
 
+#### Rule Set mrs
+
+```yaml
+rule-providers:
+  category-ads-all:
+    type: http
+    url: https://raw.githubusercontent.com/tonggaret/dlc-geosite/subscribe/category-ads-all.mrs/category-ads-all.mrs
+    behavior: domain
+    path: ./category-ads-all.mrs
+    interval: 86400
+    format: mrs
+
+rules:
+  - RULE-SET,category-ads-all,REJECT
+```
+
 ### Sing-box
 
 #### GeoSite.db

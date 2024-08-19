@@ -67,6 +67,43 @@ jobs:
         with:
           name: category-ads-all
           path: category-ads-all
+  convertMrs:
+    name: Build mrs for Clash
+    runs-on: ubuntu-latest
+    needs:
+      - getFilter
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: category-ads-all
+      - name: Get latest mihomo
+        run: |
+          download_link="https://github.com/MetaCubeX/mihomo/releases"
+          latest_version=$(wget --no-check-certificate -qO- "https://api.github.com/repos/MetaCubeX/mihomo/releases" | grep "tag_name" | busybox grep -oE "v[0-9.]*" | head -1)
+          filename="mihomo-linux-amd64-${latest_version}"
+          download_link="${download_link}/download/${latest_version}/${filename}.gz"
+          echo "[+] ${download_link}"
+          curl -LJO $download_link
+          gzip -vd "${filename}.gz"
+          mv $filename ./mihomo
+          chmod 0755 ./mihomo
+      - name: Convert Ruleset mrs
+        run: |
+          ./mihomo convert-ruleset \
+            domain text category-ads-all category-ads-all.mrs
+      - name: Send Tele
+        run: |
+          chmod +x ./script/*.sh
+          SHA=$(cat category-ads-all.mrs 2>/dev/null | sha256sum | cut -d ' ' -f1)
+          ./script/tgSendDoc.sh ./category-ads-all.mrs "${SHA}"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: category-ads-all.mrs
+          path: category-ads-all.mrs
   buildDat:
     name: Build GeoSite Dat for Clash
     runs-on: ubuntu-latest
@@ -153,6 +190,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - getFilter
+      - convertMrs
       - buildDat
       - buildDb
     steps:
