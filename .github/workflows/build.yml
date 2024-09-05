@@ -13,6 +13,8 @@ jobs:
     if: "!contains(github.event.head_commit.message, 'skip ci')"
     name: Get Filter
     runs-on: ubuntu-latest
+    outputs:
+      nodiff: "${{ steps.diff.outputs.flag }}"
     steps:
       - name: Checkout codebase
         uses: actions/checkout@v4
@@ -48,20 +50,22 @@ jobs:
           sort ./temp-unsorted-deleted > ./temp-sorted-deleted
           diff ./temp-sorted-deleted ./temp-unsorted | awk '/^>/{print $2}' > ./category-ads-all
       - name: Check diff from prev
+        id: diff
         run: |
           prev=https://raw.githubusercontent.com/tonggaret/dlc-geosite/subscribe/category-ads-all/category-ads-all
           curl -sSL $prev > ./prev-category-ads-all
           if cmp -s ./category-ads-all ./prev-category-ads-all; then
-          echo "No different, early exit here!"
-          exit 1
+          echo "No different, set flag nodiff!"
+          echo "flag=true" >> $GITHUB_OUTPUT
           else
           echo "Files are different, good to go"
+          echo "flag=false" >> $GITHUB_OUTPUT
           fi
       - name: Send Tele
         run: |
           chmod +x ./script/*.sh
           COUNT=$(wc -l < ./category-ads-all)
-          ./script/tgSendDoc.sh ./category-ads-all "${COUNT}"
+          ./script/tgSendDoc.sh ./category-ads-all "${COUNT} isNodiff: ${{ steps.diff.outputs.flag }}"
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -72,6 +76,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - getFilter
+    if: "!contains(needs.getFilter.outputs.nodiff, 'true')"
     steps:
       - name: Checkout codebase
         uses: actions/checkout@v4
@@ -109,6 +114,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - getFilter
+    if: "!contains(needs.getFilter.outputs.nodiff, 'true')"
     steps:
       - name: Checkout codebase
         uses: actions/checkout@v4
@@ -144,7 +150,9 @@ jobs:
     name: Build GeoSite Db and Rule-set for Sing-box
     runs-on: ubuntu-latest
     needs:
+      - getFilter
       - buildDat
+    if: "!contains(needs.getFilter.outputs.nodiff, 'true')"
     steps:
       - name: Checkout codebase
         uses: actions/checkout@v4
@@ -193,6 +201,7 @@ jobs:
       - convertMrs
       - buildDat
       - buildDb
+    if: "!contains(needs.getFilter.outputs.nodiff, 'true')"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
