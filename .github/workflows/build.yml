@@ -63,9 +63,17 @@ jobs:
           fi
       - name: Send Tele
         run: |
-          chmod +x ./script/*.sh
+          if [ "${{ steps.diff.outputs.flag }}" == "true" ]; then
+          MSG="dlc-geosite: No different from last run!"
+          curl -X POST \
+            -F chat_id=${{ env.TELEGRAM_TO }} \
+            -F text="$MSG" \
+            "https://api.telegram.org/bot${{ env.TELEGRAM_TOKEN }}/sendMessage"
+          else
           COUNT=$(wc -l < ./category-ads-all)
-          ./script/tgSendDoc.sh ./category-ads-all "${COUNT} isNodiff: ${{ steps.diff.outputs.flag }}"
+          chmod +x ./script/*.sh
+          ./script/tgSendDoc.sh ./category-ads-all "${COUNT}"
+          fi
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
