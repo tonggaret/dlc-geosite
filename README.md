@@ -18,6 +18,8 @@
    > `https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/pro.mini-onlydomains.txt`
  - **Peter Lowe ads list**
    > `https://pgl.yoyo.org/adservers/serverlist.php?hostformat=domain&showintro=0&mimetype=plaintext`
+ - **Oisd Small**
+   > `https://small.oisd.nl/domainswild`
 
 ## Usage
 
