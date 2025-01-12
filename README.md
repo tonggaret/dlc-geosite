@@ -12,14 +12,12 @@
    > `https://raw.githubusercontent.com/ABPindo/indonesianadblockrules/master/subscriptions/domain.txt`
  - **1Hosts-Lite**
    > `https://raw.githubusercontent.com/badmojr/1Hosts/master/Lite/domains.txt`
- - **UrlHaus**
-   > `https://malware-filter.gitlab.io/malware-filter/urlhaus-filter-domains-online.txt`
  - **HaGeZi's Pro mini**
    > `https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/pro.mini-onlydomains.txt`
  - **Peter Lowe ads list**
    > `https://pgl.yoyo.org/adservers/serverlist.php?hostformat=domain&showintro=0&mimetype=plaintext`
  - **Oisd Small**
-   > `https://small.oisd.nl/domainswild`
+   > `https://small.oisd.nl/domainswild2`
 
 ## Usage
 
