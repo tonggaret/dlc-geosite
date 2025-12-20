@@ -26,7 +26,6 @@ jobs:
           echo "ABPindo=https://raw.githubusercontent.com/ABPindo/indonesianadblockrules/master/subscriptions/domain.txt" >> $GITHUB_ENV
           echo "OneHostsLite=https://raw.githubusercontent.com/badmojr/1Hosts/master/Lite/domains.txt" >> $GITHUB_ENV
           echo "HageziProMini=https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/pro.mini-onlydomains.txt" >> $GITHUB_ENV
-          echo "PGL=https://pgl.yoyo.org/adservers/serverlist.php?hostformat=domain&showintro=0&mimetype=plaintext" >> $GITHUB_ENV
 
       - name: Get all domains
         run: |
@@ -35,7 +34,6 @@ jobs:
           curl -sSL $ABPindo >> temp-unsorted
           curl -sSL $OneHostsLite >> temp-unsorted
           curl -sSL $HageziProMini >> temp-unsorted
-          curl -sSL $PGL >> temp-unsorted
           #
           sed -i '1d' temp-unsorted
           sed -i "s/[-'+]//g" temp-unsorted
