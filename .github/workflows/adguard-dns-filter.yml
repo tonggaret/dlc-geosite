@@ -9,6 +9,7 @@ env:
   TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
 jobs:
   getFilter:
+    permissions: write-all
     if: "!contains(github.event.head_commit.message, 'skip ci')"
     name: Get Filter
     runs-on: ubuntu-latest
