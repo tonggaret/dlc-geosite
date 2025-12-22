@@ -78,6 +78,32 @@ jobs:
         run: |
           chmod +x ./script/*.sh
           echo "::notice::Sending filter via Telegram..."
-          ./script/tgSendDoc.sh ${Adguard_Filter_Name} "Plain AdGuard DNS Filter"
-          ./script/tgSendDoc.sh "${Adguard_Filter_Name}.srs" "SRS AdGuard DNS Filter"
+          ./script/tgSendDoc.sh ${Adguard_Filter_Name} "Plain"
+          ./script/tgSendDoc.sh "${Adguard_Filter_Name}.srs" "SRS"
           echo "::notice::Filters sent successfully!"
+      - name: Push to "subscribe" branch
+        run: |
+          branch="subscribe"
+          mkdir -p $branch
+          cd $branch
+          GITPUSH=(git push https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} "$branch")
+          git init
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add origin "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+          git checkout -b $branch
+          _check_branch=$(git ls-remote --heads origin ${branch})
+          #
+          if [[ -z ${_check_branch} ]]; then
+              echo "Branch $branch do not exist" > /dev/null 2>&1
+          else
+              echo "Branch exist, need sync" > /dev/null 2>&1
+              git fetch origin $branch
+              git pull origin $branch
+          fi
+          NOW=$(date +'%F-%H%M')
+          echo -e "# Subscribe dlc\n\n" > README.md
+          echo $NOW >> README.md
+          cp -r ../"${Adguard_Filter_Name}"* ./
+          git add .
+          git commit -asm "Updated ${Adguard_Filter_Name} on $NOW" && "${GITPUSH[@]}"
