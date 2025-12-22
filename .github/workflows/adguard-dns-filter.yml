@@ -1,0 +1,81 @@
+name: AdGuard DNS Filter
+on:
+  workflow_dispatch:
+  push:
+  schedule:
+    - cron: "5 8 * * 1,4" # biweekly
+env:
+  TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
+  TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+jobs:
+  getFilter:
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    name: Get Filter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Get Sing-Box Latest Tag
+        id: latest_tag
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: SagerNet/sing-box
+          excludes: "prerelease, draft"
+      - name: Set Environment Variables
+        run: |
+          echo "Adguard_Filter_Name=adguard-dns-filter" >> $GITHUB_ENV
+          echo "Filter_Link=https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt" >> $GITHUB_ENV
+          SINGBOX_TAG="${{ steps.latest_tag.outputs.release }}"
+          SINGBOX_VERSION="${SINGBOX_TAG#v}"
+          echo "Singbox_Download_Link=https://www.github.com/SagerNet/sing-box/releases/download/${SINGBOX_TAG}/sing-box-${SINGBOX_VERSION}-linux-amd64.tar.gz"
+      - name: Download and Convert Filters
+        run: |
+          echo "::group::Filter Downloading and Conversion"
+
+          # Download filter
+          echo "::notice::Downloading filter..."
+          if curl -sSL $Filter_Link -o "${Adguard_Filter_Name}"; then
+            echo "::notice::Filter downloaded successfully!"
+          else
+            echo "::error::Filter download failed!" >&2
+            exit 1
+          fi
+
+          # Download Sing-Box
+          echo "::notice::Downloading Sing-Box..."
+          if curl -sSL -o ./sing-box.tar.gz $Singbox_Download_Link; then
+            echo "::notice::Sing-Box downloaded successfully!"
+          else
+            echo "::error::Sing-Box download failed!" >&2
+            exit 1
+          fi
+
+          # Extract Sing-Box
+          echo "::notice::Extracting Sing-Box..."
+          if tar -xavf ./sing-box.tar.gz; then
+            echo "::notice::Sing-Box extracted successfully!"
+          else
+            echo "::error::Sing-Box extraction failed!" >&2
+            exit 1
+          fi
+
+          chmod +x ./sing-box
+
+          # Convert the filter
+          echo "::notice::Converting filter..."
+          if ./sing-box rule-set convert -t adguard "${Adguard_Filter_Name}"; then
+            echo "::notice::Filter converted successfully!"
+          else
+            echo "::error::Filter conversion failed!" >&2
+            exit 1
+          fi
+          echo "::endgroup::"
+      - name: Send Filter via Telegram
+        run: |
+          chmod +x ./script/*.sh
+          echo "::notice::Sending filter via Telegram..."
+          ./script/tgSendDoc.sh ${Adguard_Filter_Name} "Plain AdGuard DNS Filter"
+          ./script/tgSendDoc.sh "${Adguard_Filter_Name}.srs" "SRS AdGuard DNS Filter"
+          echo "::notice::Filters sent successfully!"
