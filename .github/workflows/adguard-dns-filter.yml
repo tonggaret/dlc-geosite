@@ -29,6 +29,7 @@ jobs:
           echo "Filter_Link=https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_15_DnsFilter/filter.txt" >> $GITHUB_ENV
           SINGBOX_TAG="${{ steps.latest_tag.outputs.release }}"
           SINGBOX_VERSION="${SINGBOX_TAG#v}"
+          echo "Singbox_Version=${SINGBOX_VERSION}" >> $GITHUB_ENV
           echo "Singbox_Download_Link=https://www.github.com/SagerNet/sing-box/releases/download/${SINGBOX_TAG}/sing-box-${SINGBOX_VERSION}-linux-amd64.tar.gz" >> $GITHUB_ENV
       - name: Download and Convert Filters
         run: |
@@ -61,6 +62,7 @@ jobs:
             exit 1
           fi
 
+          cp "sing-box-${Singbox_Version}-linux-amd64/sing-box" ./
           chmod +x ./sing-box
 
           # Convert the filter
