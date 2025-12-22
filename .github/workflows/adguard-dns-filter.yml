@@ -55,7 +55,7 @@ jobs:
 
           # Extract Sing-Box
           echo "::notice::Extracting Sing-Box..."
-          if tar -xavf ./sing-box.tar.gz "sing-box-${Singbox_Version}-linux-amd64/sing-box" --strip-components 1; then
+          if tar -xavf ./sing-box.tar.gz --strip-components 1; then
             echo "::notice::Sing-Box extracted successfully!"
           else
             echo "::error::Sing-Box extraction failed!" >&2
